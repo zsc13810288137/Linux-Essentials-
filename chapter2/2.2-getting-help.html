@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用命令行获取帮助 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #60a5fa;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p {
+  margin-bottom: 0.8rem;
+}
+article ul, article ol {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+}
+article li {
+  margin-bottom: 0.3rem;
+}
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+article th {
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface-raised);
+  color: var(--heading);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+article td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+}
+article code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: var(--accent);
+}
+article pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+article pre code {
+  background: none;
+  padding: 0;
+  color: var(--text);
+}
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote {
+  border-left: 3px solid var(--ch-color);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+}
+article strong { color: var(--heading); }
+.nav-bottom {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">2.2</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 2 · 在 Linux 系统中导航</div>
+  <h1>使用命令行获取帮助</h1>
+  <div class="commands">本课命令：<code>man</code> <code>info</code> <code>locate</code> <code>find</code> <code>updatedb</code></div>
+</div>
+<article>
+
+<h2>--help</h2>
+<p>大多数命令支持，快速了解选项的首选方法。</p>
+
+<h2>man 手册页</h2>
+<pre><code><span class="cmd">man</span> mkdir</code></pre>
+<ul>
+<li>方向键/空格滚动，<code>Q</code> 退出</li>
+<li>搜索：<code>/关键词</code>（向前）、<code>?关键词</code>（向后），<code>N</code> 下一个匹配</li>
+</ul>
+
+<h3>man 页分类（1–8）</h3>
+<table>
+<tr><th>类别</th><th>内容</th></tr>
+<tr><td>1</td><td>用户命令</td></tr>
+<tr><td>2</td><td>系统调用</td></tr>
+<tr><td>3</td><td>C 库函数</td></tr>
+<tr><td>4</td><td>驱动与设备文件</td></tr>
+<tr><td>5</td><td>配置文件格式</td></tr>
+<tr><td>6</td><td>游戏</td></tr>
+<tr><td>7</td><td>杂项</td></tr>
+<tr><td>8</td><td>系统管理员命令</td></tr>
+</table>
+<p>同名可出现在多个类别：<code>man 1 passwd</code>（命令） vs <code>man 5 passwd</code>（配置文件）</p>
+
+<h2>info 信息页</h2>
+<p>比 man 更详细，超文本结构。按 <code>Enter</code> 跳转链接，<code>?</code> 查看帮助。</p>
+
+<h2>/usr/share/doc/</h2>
+<p>已安装软件包的详细文档目录，含 README、changelog、配置示例等。</p>
+
+<h2>查找文件</h2>
+<h3>locate（最快）</h3>
+<pre><code><span class="cmd">locate</span> note
+<span class="cmd">sudo updatedb</span>    <span class="comment"># 更新数据库</span></code></pre>
+<blockquote><strong>注意</strong>：<code>/tmp</code> 等目录默认被排除！查看排除规则：<code>grep PRUNEPATHS /etc/updatedb.conf</code></blockquote>
+
+<h3>find（实时搜索）</h3>
+<pre><code><span class="cmd">find</span> . -name thesis.pdf
+<span class="cmd">find</span> ~ -name "*.txt"</code></pre>
+<p>不依赖数据库，功能更强但较慢。</p>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="2.1-L2-variables.html">
+  <div class="label">← 上一课</div>
+  <div class="name">2.1b 变量</div>
+</a><a class="nav-btn" href="2.3-L1-directories-and-listing.html">
+  <div class="label">下一课 →</div>
+  <div class="name">2.3 目录与文件列表</div>
+</a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

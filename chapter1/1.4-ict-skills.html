@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT 技能与在 Linux 中工作 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #4ade80;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p {
+  margin-bottom: 0.8rem;
+}
+article ul, article ol {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+}
+article li {
+  margin-bottom: 0.3rem;
+}
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+article th {
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface-raised);
+  color: var(--heading);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+article td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+}
+article code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: var(--accent);
+}
+article pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+article pre code {
+  background: none;
+  padding: 0;
+  color: var(--text);
+}
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote {
+  border-left: 3px solid var(--ch-color);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+}
+article strong { color: var(--heading); }
+.nav-bottom {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">1.4</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 1 · Linux 社区与职业</div>
+  <h1>ICT 技能与在 Linux 中工作</h1>
+  
+</div>
+<article>
+
+<h2>Linux 用户界面</h2>
+<table>
+<tr><th>桌面环境</th><th>特点</th><th>工具包</th></tr>
+<tr><td><strong>GNOME</strong></td><td>简洁，"Keep it simple"</td><td>GTK</td></tr>
+<tr><td><strong>KDE</strong></td><td>功能丰富，高度可定制</td><td>Qt</td></tr>
+</table>
+<p>可同时安装多个桌面环境，按需切换。</p>
+
+<h2>进入命令行</h2>
+<ul>
+<li><strong>图形终端模拟器</strong>：GNOME Terminal、Konsole、Xterm</li>
+<li><strong>虚拟终端（TTY）</strong>：<code>Ctrl + Alt + F1</code> 到 <code>F7</code> 切换</li>
+</ul>
+
+<h2>Linux 在工业中的应用</h2>
+<p>约 68% 的网站服务器运行在 Unix/Linux 上。</p>
+<table>
+<tr><th>云模式</th><th>说明</th><th>示例</th></tr>
+<tr><td><strong>IaaS</strong></td><td>提供虚拟机</td><td>OpenStack、KVM、Xen、VirtualBox</td></tr>
+<tr><td><strong>PaaS</strong></td><td>直接部署应用</td><td>Heroku</td></tr>
+<tr><td><strong>SaaS</strong></td><td>直接使用软件</td><td>Dropbox、Salesforce</td></tr>
+</table>
+
+<h2>网络安全与隐私</h2>
+<h3>Cookie 与追踪</h3>
+<ul>
+<li>广告网络通过 Cookie 追踪浏览行为</li>
+<li><strong>DNT</strong>：只是请求，网站可不遵守</li>
+<li><strong>隐私窗口</strong>：关闭后删除本地数据，<strong>不能真正匿名</strong></li>
+</ul>
+
+<h3>密码管理</h3>
+<ul>
+<li><strong>KeePass</strong>：本地加密存储</li>
+<li><strong>Bitwarden</strong>：开源云同步，可自建</li>
+</ul>
+<p>原则：每个服务用不同的随机强密码，只记住主密码。</p>
+
+<h3>加密</h3>
+<table>
+<tr><th>方式</th><th>用途</th></tr>
+<tr><td><strong>TLS / HTTPS</strong></td><td>保护网络传输</td></tr>
+<tr><td><strong>GnuPG (GPG)</strong></td><td>加密/签名邮件和文件</td></tr>
+<tr><td><strong>dm-crypt + LUKS</strong></td><td>块设备加密（整个分区）</td></tr>
+<tr><td><strong>EncFS</strong></td><td>堆叠文件系统加密（不需 root）</td></tr>
+</table>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="1.3-open-source-licensing.html">
+  <div class="label">← 上一课</div>
+  <div class="name">1.3 开源许可证</div>
+</a><a class="nav-btn" href="../chapter2/2.1-L1-command-line-basics.html">
+  <div class="label">下一课 →</div>
+  <div class="name">2.1 命令行基础</div>
+</a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Essentials 学习笔记 — Senchuan</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --ch1: #4ade80;
+  --ch2: #60a5fa;
+  --ch3: #fbbf24;
+  --ch4: #c084fc;
+  --ch5: #f87171;
+  --done: #4ade80;
+  --todo: #6b7280;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 3rem 2rem 2.5rem;
+  position: relative;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ch1), var(--ch2), var(--ch3), var(--ch4), var(--ch5));
+}
+.header-inner { max-width: 960px; margin: 0 auto; }
+.header-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.03em;
+}
+.header-sub {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.header-sub a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.header-sub a:hover { text-decoration: underline; }
+.header-stats {
+  margin-top: 0.8rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.header-stats strong { color: var(--text); }
+.toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.toolbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  color: var(--heading);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--text-muted); }
+.filter-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.filter-btn:hover { border-color: var(--text-muted); color: var(--text); }
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.filter-btn.active-ch1 { border-color: var(--ch1); color: var(--ch1); background: #16653420; }
+.filter-btn.active-ch2 { border-color: var(--ch2); color: var(--ch2); background: #1e3a5f40; }
+.filter-btn.active-ch3 { border-color: var(--ch3); color: var(--ch3); background: #92400e20; }
+.filter-btn.active-ch4 { border-color: var(--ch4); color: var(--ch4); background: #6b21a820; }
+.filter-btn.active-ch5 { border-color: var(--ch5); color: var(--ch5); background: #991b1b20; }
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 4rem;
+}
+.results-info {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.8rem;
+}
+.lesson-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.1rem 1.3rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.15s;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.lesson-card:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+.lesson-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+}
+.lesson-card.ch-1::before { background: var(--ch1); }
+.lesson-card.ch-2::before { background: var(--ch2); }
+.lesson-card.ch-3::before { background: var(--ch3); }
+.lesson-card.ch-4::before { background: var(--ch4); }
+.lesson-card.ch-5::before { background: var(--ch5); }
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+.card-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.ch-1 .card-number { color: var(--ch1); }
+.ch-2 .card-number { color: var(--ch2); }
+.ch-3 .card-number { color: var(--ch3); }
+.ch-4 .card-number { color: var(--ch4); }
+.ch-5 .card-number { color: var(--ch5); }
+.card-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--heading);
+}
+.card-meta {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.card-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: var(--surface-raised);
+  color: var(--text-muted);
+}
+.card-tag.ch-1 { color: var(--ch1); }
+.card-tag.ch-2 { color: var(--ch2); }
+.card-tag.ch-3 { color: var(--ch3); }
+.card-tag.ch-4 { color: var(--ch4); }
+.card-tag.ch-5 { color: var(--ch5); }
+.card-tag.status-done { color: var(--done); }
+.card-tag.status-todo { color: var(--todo); }
+.card-topics {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.empty-state .icon { font-size: 2rem; margin-bottom: 1rem; }
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .header h1 { font-size: 1.6rem; }
+  .lesson-grid { grid-template-columns: 1fr; }
+  .content { padding: 1rem 1rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-label">Senchuan's Study Notes</div>
+    <h1>Linux Essentials</h1>
+    <div class="header-sub">基于 <a href="https://learning.lpi.org/en/learning-materials/010-160/" target="_blank">LPI Linux Essentials (010-160)</a> 课程的中文学习笔记</div>
+    <div class="header-stats">
+      <span><strong id="total-count">0</strong> 课时</span>
+      <span><strong id="done-count">0</strong> 已完成</span>
+      <span><strong id="todo-count">0</strong> 待学习</span>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <input class="search-box" type="text" id="search" placeholder="搜索课程、命令、关键词...">
+    <button class="filter-btn" data-filter="all" onclick="setFilter('all', this)">全部</button>
+    <button class="filter-btn" data-filter="1" onclick="setFilter('1', this)">Ch.1</button>
+    <button class="filter-btn" data-filter="2" onclick="setFilter('2', this)">Ch.2</button>
+    <button class="filter-btn" data-filter="3" onclick="setFilter('3', this)">Ch.3</button>
+    <button class="filter-btn" data-filter="4" onclick="setFilter('4', this)">Ch.4</button>
+    <button class="filter-btn" data-filter="5" onclick="setFilter('5', this)">Ch.5</button>
+  </div>
+</div>
+
+<main class="content">
+  <div class="results-info" id="results-info"></div>
+  <div class="lesson-grid" id="grid"></div>
+  <div class="empty-state" id="empty" style="display:none;">
+    <div class="icon">🔍</div>
+    <div>没有匹配的课程。</div>
+  </div>
+</main>
+
+<footer class="footer">
+  Senchuan · Linux Essentials Notes · 2026
+</footer>
+
+<script>
+const lessons = [
+  {
+    id: "1.1",
+    title: "Linux 的演进与流行操作系统",
+    chapter: 1,
+    status: "done",
+    topics: ["Linux 起源", "发行版家族", "Debian", "Red Hat", "SUSE", "嵌入式系统", "Android", "Raspberry Pi", "云计算"],
+    path: "chapter1/1.1-linux-evolution.html"
+  },
+  {
+    id: "1.2",
+    title: "主要开源应用程序",
+    chapter: 1,
+    status: "done",
+    topics: ["包管理", "apt", "dnf", "LibreOffice", "Firefox", "GIMP", "VLC", "Apache", "Samba", "编程语言"],
+    path: "chapter1/1.2-open-source-applications.html"
+  },
+  {
+    id: "1.3",
+    title: "开源软件与许可证",
+    chapter: 1,
+    status: "done",
+    topics: ["四大自由", "GPL", "BSD", "MIT", "Copyleft", "Creative Commons", "FOSS", "商业模式"],
+    path: "chapter1/1.3-open-source-licensing.html"
+  },
+  {
+    id: "1.4",
+    title: "ICT 技能与在 Linux 中工作",
+    chapter: 1,
+    status: "done",
+    topics: ["GNOME", "KDE", "终端", "TTY", "云计算", "IaaS", "PaaS", "SaaS", "Cookie", "加密", "GPG", "密码管理"],
+    path: "chapter1/1.4-ict-skills.html"
+  },
+  {
+    id: "2.1",
+    title: "命令行基础",
+    chapter: 2,
+    status: "done",
+    topics: ["Bash", "Shell", "命令提示符", "命令结构", "内部命令", "外部命令", "type", "引用", "双引号", "单引号", "转义"],
+    path: "chapter2/2.1-L1-command-line-basics.html"
+  },
+  {
+    id: "2.1b",
+    title: "变量",
+    chapter: 2,
+    status: "done",
+    topics: ["局部变量", "环境变量", "export", "unset", "PATH", "env", "which", "作用域"],
+    path: "chapter2/2.1-L2-variables.html"
+  },
+  {
+    id: "2.2",
+    title: "使用命令行获取帮助",
+    chapter: 2,
+    status: "done",
+    topics: ["man", "info", "--help", "man 分类", "locate", "find", "updatedb", "/usr/share/doc"],
+    path: "chapter2/2.2-getting-help.html"
+  },
+  {
+    id: "2.3",
+    title: "使用目录与列出文件",
+    chapter: 2,
+    status: "done",
+    topics: ["pwd", "ls", "cd", "绝对路径", "相对路径", ".", "..", "文件命名"],
+    path: "chapter2/2.3-L1-directories-and-listing.html"
+  },
+  {
+    id: "2.3b",
+    title: "家目录与 ls 进阶",
+    chapter: 2,
+    status: "done",
+    topics: ["~", "家目录", "隐藏文件", "ls -l", "ls -lh", "ls -R", "递归", "du", "alias"],
+    path: "chapter2/2.3-L2-home-directory-and-ls.html"
+  },
+  {
+    id: "2.4",
+    title: "创建、移动与删除文件",
+    chapter: 2,
+    status: "done",
+    topics: ["mkdir", "touch", "mv", "cp", "rm", "rmdir", "通配符", "Globbing", "*", "?", "[]"],
+    path: "chapter2/2.4-file-operations.html"
+  },
+  {
+    id: "3.1",
+    title: "命令行存档",
+    chapter: 3,
+    status: "todo",
+    topics: ["tar", "gzip", "bzip2", "xz", "zip"],
+    path: "#"
+  },
+  {
+    id: "3.2",
+    title: "搜索与提取数据",
+    chapter: 3,
+    status: "todo",
+    topics: ["grep", "管道", "重定向", "正则表达式"],
+    path: "#"
+  },
+  {
+    id: "3.3",
+    title: "脚本基础",
+    chapter: 3,
+    status: "todo",
+    topics: ["Shell 脚本", "变量", "条件判断", "循环"],
+    path: "#"
+  },
+  {
+    id: "4.1",
+    title: "操作系统概念",
+    chapter: 4,
+    status: "todo",
+    topics: ["内核", "进程", "硬件", "驱动"],
+    path: "#"
+  },
+  {
+    id: "4.2",
+    title: "管理软件",
+    chapter: 4,
+    status: "todo",
+    topics: ["包管理进阶", "依赖", "仓库"],
+    path: "#"
+  },
+  {
+    id: "4.3",
+    title: "进程管理",
+    chapter: 4,
+    status: "todo",
+    topics: ["ps", "top", "kill", "后台进程"],
+    path: "#"
+  },
+  {
+    id: "4.4",
+    title: "网络配置",
+    chapter: 4,
+    status: "todo",
+    topics: ["IP", "路由", "DNS", "网络工具"],
+    path: "#"
+  },
+  {
+    id: "5.1",
+    title: "安全基础与用户类型",
+    chapter: 5,
+    status: "todo",
+    topics: ["root", "sudo", "用户管理"],
+    path: "#"
+  },
+  {
+    id: "5.2",
+    title: "创建用户与组",
+    chapter: 5,
+    status: "todo",
+    topics: ["useradd", "groupadd", "/etc/passwd", "/etc/shadow"],
+    path: "#"
+  },
+  {
+    id: "5.3",
+    title: "文件权限与所有权",
+    chapter: 5,
+    status: "todo",
+    topics: ["chmod", "chown", "rwx", "特殊权限"],
+    path: "#"
+  },
+  {
+    id: "5.4",
+    title: "特殊目录与文件",
+    chapter: 5,
+    status: "todo",
+    topics: ["符号链接", "硬链接", "/proc", "/sys", "临时文件"],
+    path: "#"
+  },
+];
+
+const chapterNames = {
+  1: "Linux 社区与职业",
+  2: "在 Linux 系统中导航",
+  3: "命令行的力量",
+  4: "Linux 操作系统",
+  5: "安全与文件权限",
+};
+
+let activeFilter = 'all';
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn');
+  if (f === 'all') btn.classList.add('active');
+  else btn.classList.add('active-ch' + f);
+  render();
+}
+
+function render() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const info = document.getElementById('results-info');
+
+  let filtered = lessons.filter(l => {
+    const matchFilter = activeFilter === 'all' || String(l.chapter) === activeFilter;
+    const searchStr = [l.id, l.title, chapterNames[l.chapter], ...l.topics].join(' ').toLowerCase();
+    const matchSearch = !query || searchStr.includes(query);
+    return matchFilter && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    info.textContent = '0 条结果';
+    return;
+  }
+
+  empty.style.display = 'none';
+  info.textContent = filtered.length + ' 课时';
+
+  grid.innerHTML = filtered.map(l => {
+    const tag = l.path === '#' ? 'div' : 'a';
+    const href = l.path === '#' ? '' : ` href="${l.path}"`;
+    const cursor = l.path === '#' ? ' style="cursor:default;opacity:0.5;"' : '';
+    return `
+    <${tag} class="lesson-card ch-${l.chapter}"${href}${cursor}>
+      <div class="card-top">
+        <div class="card-number">${l.id}</div>
+        <span class="card-title">${l.title}</span>
+      </div>
+      <div class="card-meta">
+        <span class="card-tag ch-${l.chapter}">Ch.${l.chapter} ${chapterNames[l.chapter]}</span>
+        <span class="card-tag status-${l.status}">${l.status === 'done' ? '✓ 已完成' : '○ 待学习'}</span>
+      </div>
+      <div class="card-topics">${l.topics.join(' · ')}</div>
+    </${tag}>`;
+  }).join('');
+}
+
+document.getElementById('total-count').textContent = lessons.length;
+document.getElementById('done-count').textContent = lessons.filter(l => l.status === 'done').length;
+document.getElementById('todo-count').textContent = lessons.filter(l => l.status === 'todo').length;
+
+document.getElementById('search').addEventListener('input', render);
+document.querySelector('[data-filter="all"]').classList.add('active');
+render();
+</script>
+</body>
+</html>

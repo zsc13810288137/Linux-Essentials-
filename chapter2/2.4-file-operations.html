@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>创建、移动与删除文件 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #60a5fa;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p {
+  margin-bottom: 0.8rem;
+}
+article ul, article ol {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+}
+article li {
+  margin-bottom: 0.3rem;
+}
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+article th {
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface-raised);
+  color: var(--heading);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+article td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+}
+article code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: var(--accent);
+}
+article pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+article pre code {
+  background: none;
+  padding: 0;
+  color: var(--text);
+}
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote {
+  border-left: 3px solid var(--ch-color);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+}
+article strong { color: var(--heading); }
+.nav-bottom {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">2.4</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 2 · 在 Linux 系统中导航</div>
+  <h1>创建、移动与删除文件</h1>
+  <div class="commands">本课命令：<code>mkdir</code> <code>touch</code> <code>echo</code> <code>cat</code> <code>mv</code> <code>cp</code> <code>rm</code> <code>rmdir</code> <code>find</code></div>
+</div>
+<article>
+
+<h2>大小写敏感</h2>
+<p>Linux 文件名<strong>区分大小写</strong>：<code>/etc</code> 和 <code>/ETC</code> 是不同路径。</p>
+
+<h2>创建目录</h2>
+<pre><code><span class="cmd">mkdir</span> 目录名
+<span class="cmd">mkdir</span> -p 父目录/子目录       <span class="comment"># 递归创建</span></code></pre>
+
+<h2>创建文件</h2>
+<pre><code><span class="cmd">touch</span> 文件名                 <span class="comment"># 空文件</span>
+<span class="cmd">echo</span> hello > question15      <span class="comment"># 写入内容（⚠️ > 会覆盖！）</span>
+<span class="cmd">cat</span> question15               <span class="comment"># 查看内容</span></code></pre>
+
+<h2>重命名与移动（mv）</h2>
+<pre><code><span class="cmd">mv</span> 旧名 新名                 <span class="comment"># 重命名</span>
+<span class="cmd">mv</span> 文件1 文件2 目标目录       <span class="comment"># 移动多个文件</span>
+<span class="cmd">mv</span> -i 旧名 新名              <span class="comment"># 覆盖前询问（推荐）</span></code></pre>
+
+<h2>删除</h2>
+<table>
+<tr><th>命令</th><th>作用</th><th>说明</th></tr>
+<tr><td><code>rm 文件</code></td><td>删除文件</td><td></td></tr>
+<tr><td><code>rmdir 目录</code></td><td>删除空目录</td><td>只能删空目录</td></tr>
+<tr><td><code>rm -r 目录</code></td><td>递归删除</td><td>⚠️ 删除目录及所有内容</td></tr>
+<tr><td><code>rm -ri</code></td><td>递归删除并询问</td><td>更安全</td></tr>
+</table>
+
+<h2>复制（cp）</h2>
+<pre><code><span class="cmd">cp</span> 源文件 目标
+<span class="cmd">cp</span> -r 源目录 目标目录         <span class="comment"># 复制目录必须加 -r</span></code></pre>
+
+<h2>通配符（Globbing）</h2>
+<p>Shell 先展开通配符，再传给命令。</p>
+<table>
+<tr><th>符号</th><th>含义</th><th>示例</th></tr>
+<tr><td><code>*</code></td><td>任意数量字符（含 0 个）</td><td><code>star*</code> → star10, star1100</td></tr>
+<tr><td><code>?</code></td><td>任意一个字符</td><td><code>question?</code> → question1</td></tr>
+<tr><td><code>[abc]</code></td><td>匹配其中任一字符</td><td><code>file[1-3]</code></td></tr>
+<tr><td><code>[^abc]</code></td><td>匹配除指定字符外</td><td><code>file[^a]</code></td></tr>
+<tr><td><code>[[:digit:]]</code></td><td>字符类</td><td><code>file[[:digit:]]</code></td></tr>
+</table>
+<p>用 <code>\</code> 取消通配符特殊含义：<code>ls star\*</code></p>
+
+<h2>实用选项</h2>
+<ul>
+<li><code>cp -p</code>：保留权限和修改时间</li>
+<li><code>mv -n</code>：防止覆盖已有文件</li>
+<li><code>cp -u</code>：仅当目标不存在或比源旧时才复制</li>
+<li><code>rmdir -p</code>：递归删除空目录树</li>
+</ul>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="2.3-L2-home-directory-and-ls.html">
+  <div class="label">← 上一课</div>
+  <div class="name">2.3b 家目录与 ls 进阶</div>
+</a><div></div>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

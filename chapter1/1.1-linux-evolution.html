@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux 的演进与流行操作系统 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #4ade80;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p {
+  margin-bottom: 0.8rem;
+}
+article ul, article ol {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+}
+article li {
+  margin-bottom: 0.3rem;
+}
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+article th {
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface-raised);
+  color: var(--heading);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+article td {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+}
+article code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: var(--accent);
+}
+article pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+article pre code {
+  background: none;
+  padding: 0;
+  color: var(--text);
+}
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote {
+  border-left: 3px solid var(--ch-color);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+}
+article strong { color: var(--heading); }
+.nav-bottom {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">1.1</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 1 · Linux 社区与职业</div>
+  <h1>Linux 的演进与流行操作系统</h1>
+  <div class="commands">本课命令：<code>ls</code> <code>uname</code></div>
+</div>
+<article>
+
+<h2>Linux 的起源</h2>
+<ul>
+<li>1991 年由 <strong>Linus Torvalds</strong> 开始开发</li>
+<li>灵感来自 1970 年代 AT&T 开发的 <strong>Unix</strong></li>
+<li>目标：为 x86 平台提供可负担的类 Unix 系统</li>
+<li><strong>不含任何 Unix 代码</strong>，是独立项目</li>
+<li>由国际程序员社区共同维护，完全免费</li>
+</ul>
+
+<h2>发行版（Distributions）</h2>
+<p>发行版 = Linux 内核 + 精选应用程序 + 特定工具（安装、管理等）</p>
+
+<h3>主要发行版家族</h3>
+<table>
+<tr><th>家族</th><th>包管理器</th><th>代表发行版</th><th>特点</th></tr>
+<tr><td><strong>Debian</strong></td><td>dpkg（deb）</td><td>Debian GNU/Linux</td><td>稳定可靠，坚持自由软件理念</td></tr>
+<tr><td></td><td></td><td><strong>Ubuntu</strong></td><td>2004 年创建，易用，每 6 个月发布，每 2 年一个 LTS</td></tr>
+<tr><td><strong>Red Hat</strong></td><td>rpm</td><td><strong>RHEL</strong></td><td>企业级商业发行版，付费支持</td></tr>
+<tr><td></td><td></td><td><strong>CentOS</strong></td><td>基于 RHEL 源码重编译，完全免费</td></tr>
+<tr><td></td><td></td><td><strong>Fedora</strong></td><td>面向桌面，技术激进，RHEL 试验场</td></tr>
+<tr><td><strong>SUSE</strong></td><td></td><td><strong>SUSE Linux Enterprise</strong></td><td>商业版，适合企业</td></tr>
+<tr><td></td><td></td><td><strong>openSUSE</strong></td><td>社区版，提供 YaST 配置工具</td></tr>
+</table>
+
+<h3>特殊用途发行版</h3>
+<ul>
+<li><strong>Kali Linux</strong>：渗透测试</li>
+<li><strong>QubesOS</strong>：高安全性桌面</li>
+<li>容器专用超轻量发行版</li>
+<li>嵌入式系统专用发行版</li>
+</ul>
+
+<h2>嵌入式系统中的 Linux</h2>
+<p>嵌入式系统 = 硬件 + 软件，控制更大系统中的特定功能。Linux 优势：跨厂商兼容、无授权费用。</p>
+
+<h3>Android</h3>
+<ul>
+<li>Google 基于修改后的 Linux 内核开发</li>
+<li>开源核心：<strong>AOSP</strong>（Android Open Source Project）</li>
+<li>扩展到电视、手表、游戏机、相机、PC</li>
+</ul>
+
+<h3>Raspberry Pi</h3>
+<ul>
+<li>低成本、信用卡大小的计算机，最初用于教育</li>
+<li>配备 GPIO 引脚，ARM 处理器，从 SD 卡启动</li>
+<li><strong>Raspbian</strong>（现 Raspberry Pi OS）：基于 Debian 的专用发行版</li>
+</ul>
+
+<h2>Linux 与云计算</h2>
+<ul>
+<li><strong>90% 的公有云工作负载运行在 Linux 上</strong>（2017 年数据）</li>
+<li>通常以 <strong>IaaS</strong> 形式提供：选择含特定发行版的镜像，几分钟启动虚拟机</li>
+<li>所有主流云服务商（AWS、Google Cloud、Azure）都提供 Linux</li>
+</ul>
+
+<h2>练习要点</h2>
+<ul>
+<li>Debian vs Ubuntu：Ubuntu 更易用，Debian 更稳定</li>
+<li>选择发行版考虑因素：成本、性能、可扩展性、稳定性、硬件需求</li>
+<li>云计算优势：灵活扩展、易备份恢复、按需付费</li>
+</ul>
+
+</article>
+<div class="nav-bottom">
+<div></div><a class="nav-btn" href="1.2-open-source-applications.html">
+  <div class="label">下一课 →</div>
+  <div class="name">1.2 主要开源应用程序</div>
+</a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>
