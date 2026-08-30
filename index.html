@@ -375,27 +375,43 @@ const lessons = [
   },
   {
     id: "3.1",
-    title: "命令行存档",
+    title: "命令行归档文件",
     chapter: 3,
-    status: "todo",
-    topics: ["tar", "gzip", "bzip2", "xz", "zip"],
-    path: "#"
+    status: "done",
+    topics: ["tar", "gzip", "bzip2", "xz", "zip", "unzip", "zcat", "压缩", "归档"],
+    path: "chapter3/3.1-archiving.html"
   },
   {
     id: "3.2",
-    title: "搜索与提取数据",
+    title: "I/O 重定向与管道",
     chapter: 3,
-    status: "todo",
-    topics: ["grep", "管道", "重定向", "正则表达式"],
-    path: "#"
+    status: "done",
+    topics: ["重定向", ">", ">>", "2>", "&>", "管道", "|", "stdin", "stdout", "stderr", "/dev/null", "head", "tail", "sort", "cut", "wc", "tr"],
+    path: "chapter3/3.2-L1-io-redirection.html"
+  },
+  {
+    id: "3.2b",
+    title: "grep 与正则表达式",
+    chapter: 3,
+    status: "done",
+    topics: ["grep", "正则表达式", "元字符", "^", "$", ".", "*", "+", "?", "[]", "-E", "-i", "-v", "-c", "-r"],
+    path: "chapter3/3.2-L2-grep-regex.html"
   },
   {
     id: "3.3",
     title: "脚本基础",
     chapter: 3,
-    status: "todo",
-    topics: ["Shell 脚本", "变量", "条件判断", "循环"],
-    path: "#"
+    status: "done",
+    topics: ["Shell 脚本", "shebang", "chmod", "变量", "位置参数", "$1", "$#", "if", "条件判断"],
+    path: "chapter3/3.3-L1-scripting-basics.html"
+  },
+  {
+    id: "3.3b",
+    title: "脚本进阶：退出码、循环与验证",
+    chapter: 3,
+    status: "done",
+    topics: ["exit", "$?", "for", "shift", "$@", "grep验证", "退出码", "循环"],
+    path: "chapter3/3.3-L2-scripting-advanced.html"
   },
   {
     id: "4.1",

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脚本进阶：退出码、循环与验证 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #fbbf24;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p { margin-bottom: 0.8rem; }
+article ul, article ol { margin-bottom: 0.8rem; padding-left: 1.5rem; }
+article li { margin-bottom: 0.3rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+article th { text-align: left; padding: 0.5rem 0.8rem; background: var(--surface-raised); color: var(--heading); font-weight: 600; border: 1px solid var(--border); font-size: 0.82rem; }
+article td { padding: 0.5rem 0.8rem; border: 1px solid var(--border); }
+article code { font-family: 'IBM Plex Mono', monospace; background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.88em; color: var(--accent); }
+article pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; overflow-x: auto; line-height: 1.6; }
+article pre code { background: none; padding: 0; color: var(--text); }
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote { border-left: 3px solid var(--ch-color); padding: 0.6rem 1rem; margin: 1rem 0; background: var(--surface); border-radius: 0 4px 4px 0; font-size: 0.9rem; }
+article strong { color: var(--heading); }
+.nav-bottom { max-width: 780px; margin: 0 auto; padding: 0 2rem 3rem; display: flex; justify-content: space-between; gap: 1rem; }
+.nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1.2rem; text-decoration: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; transition: all 0.15s; }
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer { text-align: center; padding: 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">3.3b</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 3 · 命令行的力量</div>
+  <h1>脚本进阶：退出码、循环与验证</h1>
+  <div class="commands">本课命令：<code>exit</code> <code>shift</code> <code>for</code> <code>grep</code></div>
+</div>
+<article>
+
+<h2>退出码（Exit Codes）</h2>
+<p>每个命令执行完返回一个退出码，存在 <code>$?</code> 里：</p>
+<ul>
+<li><code>0</code> = 成功</li>
+<li>非零 = 出错（不同数字可代表不同错误）</li>
+</ul>
+
+<pre><code><span class="cmd">cat</span> somefile.txt    <span class="comment"># 成功</span>
+echo $?             <span class="comment"># 0</span>
+
+<span class="cmd">cat</span> noexist.txt     <span class="comment"># 失败</span>
+echo $?             <span class="comment"># 1</span></code></pre>
+
+<p>在脚本里用 <code>exit</code> 主动设置退出码：</p>
+<pre><code>if [ $# -eq 1 ]; then
+  echo "Hello $1!"
+  <span class="cmd">exit</span> 0        <span class="comment"># 成功</span>
+else
+  echo "请只传一个参数"
+  <span class="cmd">exit</span> 1        <span class="comment"># 失败</span>
+fi
+echo "这行永远不会执行"  <span class="comment"># exit 后脚本立即结束</span></code></pre>
+
+<h2>for 循环</h2>
+<pre><code><span class="cmd">for</span> username <span class="cmd">in</span> $@
+<span class="cmd">do</span>
+  echo "Hello $username!"
+<span class="cmd">done</span></code></pre>
+
+<p>运行 <code>./script.sh Carol Dave Henry</code> 输出：</p>
+<pre><code>Hello Carol!
+Hello Dave!
+Hello Henry!</code></pre>
+
+<h3>shift 命令</h3>
+<p>把参数数组的<strong>第一个元素踢掉</strong>，剩余的往前挪：</p>
+<pre><code><span class="comment"># 参数: Carol Dave Henry</span>
+echo -n "Hello $1"   <span class="comment"># 输出 "Hello Carol"（-n 不换行）</span>
+<span class="cmd">shift</span>                <span class="comment"># 现在 $@ = Dave Henry</span>
+<span class="cmd">for</span> username <span class="cmd">in</span> $@; <span class="cmd">do</span>
+  echo -n ", and $username"
+<span class="cmd">done</span>
+echo "!"
+<span class="comment"># 最终: Hello Carol, and Dave, and Henry!</span></code></pre>
+
+<h2>用 grep 做输入验证</h2>
+<p>核心思路：用 grep 匹配，然后检查 <code>$?</code>。</p>
+<pre><code>echo "Hello" | <span class="cmd">grep</span> "^[A-Za-z]*$"   <span class="comment"># 匹配成功 → $? = 0</span>
+echo "4n1ml" | <span class="cmd">grep</span> "^[A-Za-z]*$"   <span class="comment"># 匹配失败 → $? = 1</span></code></pre>
+
+<p>正则拆解：<code>^[A-Za-z]*$</code> = 行首到行尾只有字母。</p>
+
+<p>脚本中的用法：</p>
+<pre><code><span class="cmd">for</span> username <span class="cmd">in</span> $@; <span class="cmd">do</span>
+  echo $username | <span class="cmd">grep</span> "^[A-Za-z]*$" &gt; /dev/null  <span class="comment"># 抑制输出</span>
+  if [ $? -eq 1 ]; then
+    echo "错误：名字只能包含字母"
+    <span class="cmd">exit</span> 2    <span class="comment"># 用不同退出码区分不同错误</span>
+  else
+    echo "Hello $username!"
+  fi
+<span class="cmd">done</span></code></pre>
+
+<h2>综合示例：过滤大于 10 的数字</h2>
+<pre><code>#!/bin/bash
+<span class="cmd">for</span> i <span class="cmd">in</span> $@; <span class="cmd">do</span>
+  echo $i | <span class="cmd">grep</span> "^[0-9]*$" &gt; /dev/null  <span class="comment"># 第一关：是纯数字？</span>
+  if [ $? -eq 0 ]; then
+    if [ $i -gt 10 ]; then              <span class="comment"># 第二关：大于 10？</span>
+      echo -n "$i "
+    fi
+  fi
+<span class="cmd">done</span>
+echo ""</code></pre>
+
+<pre><code>$ ./script.sh 5 abc 20 hello 3 42 100
+20 42 100</code></pre>
+
+<blockquote>为什么要先 grep 再比较？因为 <code>[ hello -gt 10 ]</code> 会报语法错误——<code>-gt</code> 只能比较数字。grep 那一步是"保镖"，把非数字参数提前挡在门外。</blockquote>
+
+<h2>速查表</h2>
+<table>
+<tr><th>变量/命令</th><th>含义</th></tr>
+<tr><td><code>$?</code></td><td>上一条命令的退出码</td></tr>
+<tr><td><code>$@</code> / <code>$*</code></td><td>所有参数</td></tr>
+<tr><td><code>$#</code></td><td>参数个数</td></tr>
+<tr><td><code>$1, $2...</code></td><td>第 N 个参数</td></tr>
+<tr><td><code>exit N</code></td><td>立即结束脚本，返回退出码 N</td></tr>
+<tr><td><code>shift</code></td><td>删除第一个参数，其余前移</td></tr>
+<tr><td><code>&gt; /dev/null</code></td><td>丢弃输出</td></tr>
+<tr><td><code>echo -n</code></td><td>输出不换行</td></tr>
+</table>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="3.3-L1-scripting-basics.html">
+  <div class="label">← 上一课</div>
+  <div class="name">3.3 脚本基础</div>
+</a>
+<div></div>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

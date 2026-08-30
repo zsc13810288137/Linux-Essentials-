@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命令行归档文件 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #fbbf24;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p { margin-bottom: 0.8rem; }
+article ul, article ol { margin-bottom: 0.8rem; padding-left: 1.5rem; }
+article li { margin-bottom: 0.3rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+article th { text-align: left; padding: 0.5rem 0.8rem; background: var(--surface-raised); color: var(--heading); font-weight: 600; border: 1px solid var(--border); font-size: 0.82rem; }
+article td { padding: 0.5rem 0.8rem; border: 1px solid var(--border); }
+article code { font-family: 'IBM Plex Mono', monospace; background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.88em; color: var(--accent); }
+article pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; overflow-x: auto; line-height: 1.6; }
+article pre code { background: none; padding: 0; color: var(--text); }
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote { border-left: 3px solid var(--ch-color); padding: 0.6rem 1rem; margin: 1rem 0; background: var(--surface); border-radius: 0 4px 4px 0; font-size: 0.9rem; }
+article strong { color: var(--heading); }
+.nav-bottom { max-width: 780px; margin: 0 auto; padding: 0 2rem 3rem; display: flex; justify-content: space-between; gap: 1rem; }
+.nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1.2rem; text-decoration: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; transition: all 0.15s; }
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer { text-align: center; padding: 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">3.1</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 3 · 命令行的力量</div>
+  <h1>命令行归档文件</h1>
+  <div class="commands">本课命令：<code>tar</code> <code>gzip</code> <code>gunzip</code> <code>bzip2</code> <code>bunzip2</code> <code>xz</code> <code>unxz</code> <code>zip</code> <code>unzip</code> <code>zcat</code></div>
+</div>
+<article>
+
+<h2>压缩的基本概念</h2>
+<ul>
+<li><strong>无损压缩</strong>（lossless）：可以完全还原（gzip、bzip2、xz）</li>
+<li><strong>有损压缩</strong>（lossy）：无法完全还原（常用于图片、视频、音频）</li>
+</ul>
+<p>核心思想：<strong>归档（打包）和压缩是两件事</strong>，经常一起使用。</p>
+
+<h2>常见压缩工具对比</h2>
+<table>
+<tr><th>工具</th><th>扩展名</th><th>特点</th><th>解压命令</th></tr>
+<tr><td><code>gzip</code></td><td><code>.gz</code></td><td>速度快，压缩率中等</td><td><code>gunzip</code></td></tr>
+<tr><td><code>bzip2</code></td><td><code>.bz2</code></td><td>压缩率较高，速度较慢</td><td><code>bunzip2</code></td></tr>
+<tr><td><code>xz</code></td><td><code>.xz</code></td><td>压缩率最高，速度最慢</td><td><code>unxz</code></td></tr>
+</table>
+
+<pre><code><span class="cmd">gzip</span> file          <span class="comment"># 压缩后变成 file.gz，原文件删除</span>
+<span class="cmd">gunzip</span> file.gz     <span class="comment"># 解压</span>
+
+<span class="cmd">bzip2</span> file
+<span class="cmd">bunzip2</span> file.bz2
+
+<span class="cmd">xz</span> file
+<span class="cmd">unxz</span> file.xz</code></pre>
+
+<p>支持压缩级别（数字越大压缩率越高，速度越慢）：</p>
+<pre><code><span class="cmd">gzip</span> -1 file       <span class="comment"># 最快</span>
+<span class="cmd">gzip</span> -9 file       <span class="comment"># 最高压缩</span></code></pre>
+
+<p>不解压直接查看内容：</p>
+<pre><code><span class="cmd">zcat</span> file.gz
+<span class="cmd">bzcat</span> file.bz2
+<span class="cmd">xzcat</span> file.xz</code></pre>
+
+<h2>归档工具 tar（最重要）</h2>
+<p><code>tar</code> 本身只负责<strong>打包</strong>，不压缩。常与压缩工具配合使用。</p>
+
+<h3>核心选项（必须记住）</h3>
+<table>
+<tr><th>选项</th><th>含义</th></tr>
+<tr><td><code>c</code></td><td>创建归档</td></tr>
+<tr><td><code>x</code></td><td>解压/提取</td></tr>
+<tr><td><code>t</code></td><td>查看归档内容</td></tr>
+<tr><td><code>f</code></td><td>指定文件名</td></tr>
+<tr><td><code>v</code></td><td>显示详细过程</td></tr>
+<tr><td><code>z</code></td><td>使用 gzip 压缩</td></tr>
+<tr><td><code>j</code></td><td>使用 bzip2 压缩</td></tr>
+<tr><td><code>J</code></td><td>使用 xz 压缩</td></tr>
+<tr><td><code>u</code></td><td>向已有归档添加文件</td></tr>
+<tr><td><code>P</code></td><td>保留绝对路径</td></tr>
+</table>
+
+<h3>常用命令示例</h3>
+<pre><code><span class="comment"># 创建并压缩（推荐）</span>
+<span class="cmd">tar czf</span> archive.tar.gz 目录/     <span class="comment"># gzip</span>
+<span class="cmd">tar cjf</span> archive.tar.bz2 目录/    <span class="comment"># bzip2</span>
+<span class="cmd">tar cJf</span> archive.tar.xz 目录/     <span class="comment"># xz</span>
+
+<span class="comment"># 查看内容</span>
+<span class="cmd">tar tf</span> archive.tar.gz
+
+<span class="comment"># 解压</span>
+<span class="cmd">tar xf</span> archive.tar.gz
+<span class="cmd">tar xvf</span> archive.tar.gz           <span class="comment"># 显示过程</span>
+
+<span class="comment"># 只提取某个文件</span>
+<span class="cmd">tar xf</span> archive.tar.gz 路径/文件名
+
+<span class="comment"># 通配符提取</span>
+<span class="cmd">tar xf</span> tarfile.tar --wildcards dir/file*</code></pre>
+
+<blockquote>
+<strong>注意</strong>：压缩后的 tar 包不能直接用 <code>u</code> 添加文件，必须先解压再操作。默认会去掉绝对路径开头的 <code>/</code>，防止覆盖系统文件。提取已存在的文件时会<strong>直接覆盖</strong>。
+</blockquote>
+
+<h2>ZIP 文件（与 Windows 兼容）</h2>
+<pre><code><span class="comment"># 创建（递归包含目录内容）</span>
+<span class="cmd">zip</span> -r archive.zip 目录/
+
+<span class="comment"># 解压</span>
+<span class="cmd">unzip</span> archive.zip</code></pre>
+
+<h2>扩展名速查</h2>
+<table>
+<tr><th>扩展名</th><th>工具</th><th>性质</th></tr>
+<tr><td><code>.tar</code></td><td>tar</td><td>只归档</td></tr>
+<tr><td><code>.tar.gz</code> / <code>.tgz</code></td><td>tar + gzip</td><td>归档 + 压缩</td></tr>
+<tr><td><code>.tar.bz2</code></td><td>tar + bzip2</td><td>归档 + 压缩</td></tr>
+<tr><td><code>.tar.xz</code></td><td>tar + xz</td><td>归档 + 压缩</td></tr>
+<tr><td><code>.gz</code></td><td>gzip</td><td>只压缩（单文件）</td></tr>
+<tr><td><code>.zip</code></td><td>zip</td><td>归档 + 压缩</td></tr>
+</table>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="../chapter2/2.4-file-operations.html">
+  <div class="label">← 上一课</div>
+  <div class="name">2.4 文件操作</div>
+</a>
+<a class="nav-btn" href="3.2-L1-io-redirection.html">
+  <div class="label">下一课 →</div>
+  <div class="name">3.2 I/O 重定向与管道</div>
+</a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

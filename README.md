@@ -4,7 +4,7 @@
 
 ## 🌐 在线浏览
 
-**[→ 查看所有笔记](https://zsc13810288137.github.io/Linux-Essentials-/)**
+**[→ 查看所有笔记](https://zsc13810288137.github.io/linux-essentials-notes/)**
 
 按章节筛选、按关键词搜索。
 
@@ -30,7 +30,7 @@
 
 - [x] Chapter 1: Linux 社区与 Linux 职业
 - [x] Chapter 2: 在 Linux 系统中导航
-- [ ] Chapter 3: 命令行的力量
+- [x] Chapter 3: 命令行的力量
 - [ ] Chapter 4: Linux 操作系统
 - [ ] Chapter 5: 安全与文件权限
 

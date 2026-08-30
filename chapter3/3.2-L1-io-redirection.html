@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I/O 重定向与管道 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface-raised: #1a1e26;
+  --border: #262b36;
+  --text: #c8cdd6;
+  --text-muted: #6b7280;
+  --heading: #e8ecf2;
+  --accent: #60a5fa;
+  --accent-dim: #1e3a5f;
+  --code-bg: #161b22;
+  --ch-color: #fbbf24;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+.topbar a:hover { color: var(--accent); }
+.topbar .sep { color: var(--border); }
+.topbar .current { color: var(--heading); }
+.page-header {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--ch-color);
+  border-radius: 2px;
+}
+.page-header .ch-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ch-color);
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  padding-left: 1.2rem;
+}
+.page-header .commands {
+  margin-top: 0.6rem;
+  padding-left: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.page-header .commands code {
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+}
+article p { margin-bottom: 0.8rem; }
+article ul, article ol { margin-bottom: 0.8rem; padding-left: 1.5rem; }
+article li { margin-bottom: 0.3rem; }
+article table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+article th { text-align: left; padding: 0.5rem 0.8rem; background: var(--surface-raised); color: var(--heading); font-weight: 600; border: 1px solid var(--border); font-size: 0.82rem; }
+article td { padding: 0.5rem 0.8rem; border: 1px solid var(--border); }
+article code { font-family: 'IBM Plex Mono', monospace; background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.88em; color: var(--accent); }
+article pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; overflow-x: auto; line-height: 1.6; }
+article pre code { background: none; padding: 0; color: var(--text); }
+.cmd { color: var(--ch-color); }
+.comment { color: var(--text-muted); }
+article blockquote { border-left: 3px solid var(--ch-color); padding: 0.6rem 1rem; margin: 1rem 0; background: var(--surface); border-radius: 0 4px 4px 0; font-size: 0.9rem; }
+article strong { color: var(--heading); }
+.nav-bottom { max-width: 780px; margin: 0 auto; padding: 0 2rem 3rem; display: flex; justify-content: space-between; gap: 1rem; }
+.nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1.2rem; text-decoration: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; transition: all 0.15s; }
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.nav-btn .name { color: var(--heading); margin-top: 0.2rem; font-size: 0.85rem; }
+.footer { text-align: center; padding: 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.4rem; }
+  article { padding: 1.5rem 1rem 3rem; }
+  .nav-bottom { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">3.2</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 3 · 命令行的力量</div>
+  <h1>I/O 重定向与管道</h1>
+  <div class="commands">本课命令：<code>cat</code> <code>head</code> <code>tail</code> <code>sort</code> <code>cut</code> <code>wc</code> <code>tr</code> <code>less</code> <code>find</code></div>
+</div>
+<article>
+
+<h2>标准通道</h2>
+<table>
+<tr><th>通道</th><th>名称</th><th>默认设备</th><th>编号</th></tr>
+<tr><td>标准输入</td><td>stdin</td><td>键盘</td><td>0</td></tr>
+<tr><td>标准输出</td><td>stdout</td><td>屏幕</td><td>1</td></tr>
+<tr><td>标准错误</td><td>stderr</td><td>屏幕</td><td>2</td></tr>
+</table>
+
+<h2>输出重定向</h2>
+<pre><code><span class="comment"># 标准输出</span>
+命令 <span class="cmd">&gt;</span> 文件          <span class="comment"># 覆盖写入</span>
+命令 <span class="cmd">&gt;&gt;</span> 文件        <span class="comment"># 追加写入</span>
+
+<span class="comment"># 标准错误</span>
+命令 <span class="cmd">2&gt;</span> 文件         <span class="comment"># 只重定向错误（覆盖）</span>
+命令 <span class="cmd">2&gt;&gt;</span> 文件       <span class="comment"># 只重定向错误（追加）</span>
+
+<span class="comment"># 同时重定向输出和错误</span>
+命令 <span class="cmd">&amp;&gt;</span> 文件         <span class="comment"># 覆盖</span>
+命令 <span class="cmd">&amp;&gt;&gt;</span> 文件       <span class="comment"># 追加</span>
+
+<span class="comment"># 丢弃不需要的输出</span>
+命令 <span class="cmd">2&gt; /dev/null</span>   <span class="comment"># 把错误扔进"黑洞"</span></code></pre>
+
+<h2>输入重定向</h2>
+<pre><code>命令 <span class="cmd">&lt;</span> 文件          <span class="comment"># 从文件读取输入，而不是键盘</span>
+
+<span class="comment"># 示例：tr 不能直接接文件名，必须用 &lt;</span>
+<span class="cmd">tr</span> -d "l" &lt; text    <span class="comment"># 从 text 读取，删除所有字母 l</span></code></pre>
+
+<h2>Here Document（&lt;&lt;）</h2>
+<p>直接在命令行输入多行内容：</p>
+<pre><code><span class="cmd">cat</span> &lt;&lt; EOF
+第一行
+第二行
+EOF</code></pre>
+<p><code>EOF</code> 是自定义结束标记，内容不包含这个标记本身。</p>
+
+<h3>高级用法：在 Shell 中嵌入其他语言</h3>
+<pre><code><span class="comment"># 直接运行 Python 代码</span>
+<span class="cmd">python3</span> &lt;&lt; 'EOF'
+print("Hello from Python!")
+EOF
+
+<span class="comment"># 自动生成文件</span>
+<span class="cmd">cat</span> &lt;&lt; 'EOF' &gt; test.py
+def main():
+    print("自动生成的脚本")
+EOF</code></pre>
+
+<h2>管道（Pipe）</h2>
+<p>把前一个命令的输出直接作为后一个命令的输入：</p>
+<pre><code>命令1 <span class="cmd">|</span> 命令2 <span class="cmd">|</span> 命令3</code></pre>
+
+<p>常用组合：</p>
+<pre><code><span class="cmd">ls</span> -l | <span class="cmd">head</span> | <span class="cmd">wc</span> -w               <span class="comment"># 统计前10行的单词数</span>
+<span class="cmd">head</span> -n 5 /etc/passwd | <span class="cmd">sort</span> -r    <span class="comment"># 取前5行并反向排序</span>
+<span class="cmd">find</span> /usr/share -name test | <span class="cmd">wc</span> -l <span class="comment"># 统计文件数量</span>
+<span class="cmd">cat</span> file | <span class="cmd">tr</span> -s " " | <span class="cmd">cut</span> -f 9 -d " " | <span class="cmd">sort</span> -fr</code></pre>
+
+<h2>重定向速查</h2>
+<table>
+<tr><th>符号</th><th>含义</th><th>场景</th></tr>
+<tr><td><code>&gt;</code></td><td>标准输出覆盖</td><td>保存命令结果到文件</td></tr>
+<tr><td><code>&gt;&gt;</code></td><td>标准输出追加</td><td>追加日志</td></tr>
+<tr><td><code>2&gt;</code></td><td>标准错误覆盖</td><td>单独记录错误</td></tr>
+<tr><td><code>&amp;&gt;</code></td><td>全部输出覆盖</td><td>同时捕获输出和错误</td></tr>
+<tr><td><code>&lt;</code></td><td>标准输入重定向</td><td>从文件喂数据给命令</td></tr>
+<tr><td><code>&lt;&lt;</code></td><td>Here Document</td><td>内嵌多行文本</td></tr>
+<tr><td><code>|</code></td><td>管道</td><td>串联多个命令</td></tr>
+<tr><td><code>/dev/null</code></td><td>黑洞</td><td>丢弃不需要的输出</td></tr>
+</table>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="3.1-archiving.html">
+  <div class="label">← 上一课</div>
+  <div class="name">3.1 命令行归档</div>
+</a>
+<a class="nav-btn" href="3.2-L2-grep-regex.html">
+  <div class="label">下一课 →</div>
+  <div class="name">3.2b grep 与正则表达式</div>
+</a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>
