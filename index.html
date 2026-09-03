@@ -415,35 +415,43 @@ const lessons = [
   },
   {
     id: "4.1",
-    title: "操作系统概念",
+    title: "选择操作系统",
     chapter: 4,
-    status: "todo",
-    topics: ["内核", "进程", "硬件", "驱动"],
-    path: "#"
+    status: "done",
+    topics: ["内核", "发行版", "企业级", "消费级", "UNIX", "macOS", "Windows", "uname"],
+    path: "chapter4/4.1-choosing-os.html"
   },
   {
     id: "4.2",
-    title: "管理软件",
+    title: "理解计算机硬件",
     chapter: 4,
-    status: "todo",
-    topics: ["包管理进阶", "依赖", "仓库"],
-    path: "#"
+    status: "done",
+    topics: ["CPU", "GPU", "RAM", "Swap", "HDD", "SSD", "NVMe", "RAID", "分区", "lscpu", "free", "lsblk"],
+    path: "chapter4/4.2-computer-hardware.html"
   },
   {
     id: "4.3",
-    title: "进程管理",
+    title: "数据存储在哪里（FHS）",
     chapter: 4,
-    status: "todo",
-    topics: ["ps", "top", "kill", "后台进程"],
-    path: "#"
+    status: "done",
+    topics: ["/bin", "/etc", "/boot", "/proc", "/sys", "/dev", "vmlinuz", "虚拟文件系统", "/dev/null", "/dev/zero"],
+    path: "chapter4/4.3-L1-where-data-stored.html"
+  },
+  {
+    id: "4.3b",
+    title: "进程与系统日志",
+    chapter: 4,
+    status: "done",
+    topics: ["top", "ps", "pstree", "PID", "uptime", "dmesg", "journalctl", "/var/log", "auth.log", "last"],
+    path: "chapter4/4.3-L2-processes-and-logs.html"
   },
   {
     id: "4.4",
     title: "网络配置",
     chapter: 4,
-    status: "todo",
-    topics: ["IP", "路由", "DNS", "网络工具"],
-    path: "#"
+    status: "done",
+    topics: ["IPv4", "IPv6", "子网", "私有地址", "NAT", "DNS", "套接字", "TCP", "UDP", "端口", "ip", "ping", "ss"],
+    path: "chapter4/4.4-networking.html"
   },
   {
     id: "5.1",

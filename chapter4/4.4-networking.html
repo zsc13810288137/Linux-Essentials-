@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你的计算机在网络中 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12; --surface: #13161c; --surface-raised: #1a1e26;
+  --border: #262b36; --text: #c8cdd6; --text-muted: #6b7280;
+  --heading: #e8ecf2; --accent: #60a5fa; --accent-dim: #1e3a5f;
+  --code-bg: #161b22; --ch-color: #c084fc;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; -webkit-font-smoothing:antialiased; }
+.topbar { border-bottom:1px solid var(--border); padding:.8rem 2rem; position:sticky; top:0; background:var(--surface); z-index:100; display:flex; align-items:center; gap:1rem; }
+.topbar a { color:var(--text-muted); text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:color .15s; }
+.topbar a:hover { color:var(--accent); }
+.topbar .sep { color:var(--border); }
+.topbar .current { color:var(--heading); }
+.page-header { max-width:780px; margin:0 auto; padding:3rem 2rem 2rem; border-bottom:1px solid var(--border); position:relative; }
+.page-header::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--ch-color); border-radius:2px; }
+.page-header .ch-label { font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ch-color); margin-bottom:.4rem; padding-left:1.2rem; }
+.page-header h1 { font-size:1.8rem; font-weight:700; color:var(--heading); letter-spacing:-.02em; padding-left:1.2rem; }
+.page-header .commands { margin-top:.6rem; padding-left:1.2rem; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-muted); }
+.page-header .commands code { background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; color:var(--accent); margin-right:.3rem; }
+article { max-width:780px; margin:0 auto; padding:2rem 2rem 4rem; }
+article h2 { font-size:1.3rem; font-weight:600; color:var(--heading); margin-top:2.5rem; margin-bottom:.8rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+article h3 { font-size:1.05rem; font-weight:600; color:var(--heading); margin-top:1.8rem; margin-bottom:.6rem; }
+article p { margin-bottom:.8rem; }
+article ul, article ol { margin-bottom:.8rem; padding-left:1.5rem; }
+article li { margin-bottom:.3rem; }
+article table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+article th { text-align:left; padding:.5rem .8rem; background:var(--surface-raised); color:var(--heading); font-weight:600; border:1px solid var(--border); font-size:.82rem; }
+article td { padding:.5rem .8rem; border:1px solid var(--border); }
+article code { font-family:'IBM Plex Mono',monospace; background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; font-size:.88em; color:var(--accent); }
+article pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; overflow-x:auto; line-height:1.6; }
+article pre code { background:none; padding:0; color:var(--text); }
+.cmd { color:var(--ch-color); }
+.comment { color:var(--text-muted); }
+article blockquote { border-left:3px solid var(--ch-color); padding:.6rem 1rem; margin:1rem 0; background:var(--surface); border-radius:0 4px 4px 0; font-size:.9rem; }
+article strong { color:var(--heading); }
+.nav-bottom { max-width:780px; margin:0 auto; padding:0 2rem 3rem; display:flex; justify-content:space-between; gap:1rem; }
+.nav-btn { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.8rem 1.2rem; text-decoration:none; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:all .15s; }
+.nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nav-btn .label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; }
+.nav-btn .name { color:var(--heading); margin-top:.2rem; font-size:.85rem; }
+.footer { text-align:center; padding:2rem; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); }
+@media (max-width:640px) { .page-header h1 { font-size:1.4rem; } article { padding:1.5rem 1rem 3rem; } .nav-bottom { flex-direction:column; } }
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">4.4</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 4 · Linux 操作系统</div>
+  <h1>你的计算机在网络中</h1>
+  <div class="commands">本课命令：<code>ip</code> <code>ping</code> <code>ss</code> <code>host</code> <code>dig</code></div>
+</div>
+<article>
+
+<h2>网络分层</h2>
+<table>
+<tr><th>层级</th><th>作用</th></tr>
+<tr><td><strong>链路层</strong></td><td>直接相连的设备通信（MAC 地址）</td></tr>
+<tr><td><strong>网络层</strong></td><td>跨网络路由（IP 地址）</td></tr>
+<tr><td><strong>应用层</strong></td><td>程序之间通信（HTTP、SSH 等）</td></tr>
+</table>
+<pre><code><span class="cmd">ip link show</span>   <span class="comment"># 查看网络接口和 MAC 地址</span></code></pre>
+
+<h2>IPv4</h2>
+<p>32 位地址，写成四段十进制：<code>192.168.0.1</code></p>
+
+<h3>子网掩码</h3>
+<p>IP = 网络部分 + 主机部分。子网掩码决定分割位置。</p>
+<p><code>192.168.0.1/24</code> = 网络范围 <code>192.168.0.0 ~ 192.168.0.255</code></p>
+
+<h3>私有地址（不能直接在公网路由）</h3>
+<table>
+<tr><th>地址段</th><th>CIDR</th><th>范围</th><th>可用数量</th><th>适合场景</th></tr>
+<tr><td><code>10.x.x.x</code></td><td>/8</td><td>10.0.0.0 ~ 10.255.255.255</td><td>约 1677 万</td><td>大型企业、数据中心</td></tr>
+<tr><td><code>172.16~31.x.x</code></td><td>/12</td><td>172.16.0.0 ~ 172.31.255.255</td><td>约 104 万</td><td>中型企业</td></tr>
+<tr><td><code>192.168.x.x</code></td><td>/16</td><td>192.168.0.0 ~ 192.168.255.255</td><td>约 6.5 万</td><td>家庭、小公司</td></tr>
+</table>
+
+<blockquote>
+<strong>快速判断</strong>：以 <code>10.</code> 开头 → 私有；以 <code>192.168.</code> 开头 → 私有；以 <code>172.</code> 开头且第二段 16~31 → 私有。其他基本都是公网。
+</blockquote>
+
+<h3>配置 IP 与路由</h3>
+<pre><code><span class="comment"># 添加 IP</span>
+<span class="cmd">sudo ip addr add</span> 192.168.0.5/24 dev ens33
+
+<span class="comment"># 查看路由表</span>
+<span class="cmd">ip route show</span>
+
+<span class="comment"># 添加默认网关</span>
+<span class="cmd">sudo ip route add</span> default via 192.168.0.1
+
+<span class="comment"># 测试连通性</span>
+<span class="cmd">ping</span> -c 3 192.168.0.1</code></pre>
+
+<h2>IPv6</h2>
+<p>128 位地址，解决 IPv4 地址不足。写成 8 组 4 位十六进制：</p>
+<pre><code>2001:0db8:0000:abcd:0000:0000:0000:7334
+<span class="comment"># 简化为</span>
+2001:db8:0:abcd::7334</code></pre>
+
+<table>
+<tr><th>类型</th><th>说明</th></tr>
+<tr><td>全球唯一</td><td>公网可路由</td></tr>
+<tr><td>唯一本地（<code>fc/fd</code> 开头）</td><td>类似 IPv4 私有地址</td></tr>
+<tr><td>链路本地（<code>fe80</code> 开头）</td><td>仅本链路有效</td></tr>
+</table>
+
+<h2>DNS</h2>
+<p>把域名转换成 IP 地址。</p>
+<ul>
+<li>配置文件：<code>/etc/resolv.conf</code>（指定 DNS 服务器）</li>
+<li>本地优先查询：<code>/etc/hosts</code></li>
+</ul>
+<pre><code><span class="cmd">host</span> learning.lpi.org    <span class="comment"># 简洁查询</span>
+<span class="cmd">dig</span> learning.lpi.org     <span class="comment"># 详细查询</span></code></pre>
+
+<h3>DNS 记录类型</h3>
+<table>
+<tr><th>类型</th><th>用途</th></tr>
+<tr><td><strong>A</strong></td><td>域名 → IPv4 地址</td></tr>
+<tr><td><strong>AAAA</strong></td><td>域名 → IPv6 地址</td></tr>
+<tr><td><strong>MX</strong></td><td>邮件服务器</td></tr>
+<tr><td><strong>CNAME</strong></td><td>别名（指向另一个域名）</td></tr>
+<tr><td><strong>TXT</strong></td><td>文本数据</td></tr>
+<tr><td><strong>PTR</strong></td><td>反向查询（IP → 域名）</td></tr>
+</table>
+
+<h2>套接字（Socket）</h2>
+<p>程序之间通信的端点，分三种：</p>
+<table>
+<tr><th>类型</th><th>特点</th><th>适用场景</th></tr>
+<tr><td><strong>Unix Socket</strong></td><td>同一台机器，速度快、安全</td><td>本地数据库、Docker</td></tr>
+<tr><td><strong>TCP</strong></td><td>可靠、有序、面向连接</td><td>网页、SSH、文件传输</td></tr>
+<tr><td><strong>UDP</strong></td><td>不可靠、无连接、速度快</td><td>视频、游戏、DNS</td></tr>
+</table>
+
+<h3>常见端口</h3>
+<table>
+<tr><th>端口</th><th>服务</th></tr>
+<tr><td>22</td><td>SSH</td></tr>
+<tr><td>80</td><td>HTTP</td></tr>
+<tr><td>443</td><td>HTTPS</td></tr>
+<tr><td>53</td><td>DNS</td></tr>
+<tr><td>3306</td><td>MySQL</td></tr>
+</table>
+
+<h3>查看套接字</h3>
+<pre><code><span class="cmd">ss</span> -t          <span class="comment"># TCP 连接</span>
+<span class="cmd">ss</span> -u          <span class="comment"># UDP</span>
+<span class="cmd">ss</span> -lnt        <span class="comment"># 正在监听的 TCP 端口</span>
+<span class="cmd">ss</span> -s          <span class="comment"># 汇总信息</span>
+<span class="cmd">ss</span> -tnp        <span class="comment"># 显示进程信息</span></code></pre>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="4.3-L2-processes-and-logs.html"><div class="label">← 上一课</div><div class="name">4.3b 进程与日志</div></a>
+<div></div>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

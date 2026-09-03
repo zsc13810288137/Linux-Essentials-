@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据存储在哪里（FHS） — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12; --surface: #13161c; --surface-raised: #1a1e26;
+  --border: #262b36; --text: #c8cdd6; --text-muted: #6b7280;
+  --heading: #e8ecf2; --accent: #60a5fa; --accent-dim: #1e3a5f;
+  --code-bg: #161b22; --ch-color: #c084fc;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; -webkit-font-smoothing:antialiased; }
+.topbar { border-bottom:1px solid var(--border); padding:.8rem 2rem; position:sticky; top:0; background:var(--surface); z-index:100; display:flex; align-items:center; gap:1rem; }
+.topbar a { color:var(--text-muted); text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:color .15s; }
+.topbar a:hover { color:var(--accent); }
+.topbar .sep { color:var(--border); }
+.topbar .current { color:var(--heading); }
+.page-header { max-width:780px; margin:0 auto; padding:3rem 2rem 2rem; border-bottom:1px solid var(--border); position:relative; }
+.page-header::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--ch-color); border-radius:2px; }
+.page-header .ch-label { font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ch-color); margin-bottom:.4rem; padding-left:1.2rem; }
+.page-header h1 { font-size:1.8rem; font-weight:700; color:var(--heading); letter-spacing:-.02em; padding-left:1.2rem; }
+.page-header .commands { margin-top:.6rem; padding-left:1.2rem; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-muted); }
+.page-header .commands code { background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; color:var(--accent); margin-right:.3rem; }
+article { max-width:780px; margin:0 auto; padding:2rem 2rem 4rem; }
+article h2 { font-size:1.3rem; font-weight:600; color:var(--heading); margin-top:2.5rem; margin-bottom:.8rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+article h3 { font-size:1.05rem; font-weight:600; color:var(--heading); margin-top:1.8rem; margin-bottom:.6rem; }
+article p { margin-bottom:.8rem; }
+article ul, article ol { margin-bottom:.8rem; padding-left:1.5rem; }
+article li { margin-bottom:.3rem; }
+article table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+article th { text-align:left; padding:.5rem .8rem; background:var(--surface-raised); color:var(--heading); font-weight:600; border:1px solid var(--border); font-size:.82rem; }
+article td { padding:.5rem .8rem; border:1px solid var(--border); }
+article code { font-family:'IBM Plex Mono',monospace; background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; font-size:.88em; color:var(--accent); }
+article pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; overflow-x:auto; line-height:1.6; }
+article pre code { background:none; padding:0; color:var(--text); }
+.cmd { color:var(--ch-color); }
+.comment { color:var(--text-muted); }
+article blockquote { border-left:3px solid var(--ch-color); padding:.6rem 1rem; margin:1rem 0; background:var(--surface); border-radius:0 4px 4px 0; font-size:.9rem; }
+article strong { color:var(--heading); }
+.nav-bottom { max-width:780px; margin:0 auto; padding:0 2rem 3rem; display:flex; justify-content:space-between; gap:1rem; }
+.nav-btn { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.8rem 1.2rem; text-decoration:none; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:all .15s; }
+.nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nav-btn .label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; }
+.nav-btn .name { color:var(--heading); margin-top:.2rem; font-size:.85rem; }
+.footer { text-align:center; padding:2rem; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); }
+@media (max-width:640px) { .page-header h1 { font-size:1.4rem; } article { padding:1.5rem 1rem 3rem; } .nav-bottom { flex-direction:column; } }
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">4.3</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 4 · Linux 操作系统</div>
+  <h1>数据存储在哪里（FHS）</h1>
+  <div class="commands">本课命令：<code>which</code> <code>ls</code></div>
+</div>
+<article>
+
+<h2>一切皆文件</h2>
+<p>Linux 的核心理念：程序、目录、硬盘、键盘、进程、网络连接……都是文件。</p>
+
+<h2>程序存放位置</h2>
+<table>
+<tr><th>路径</th><th>用途</th></tr>
+<tr><td><code>/bin</code></td><td>所有用户必需的基本命令（ls、mv、mkdir）</td></tr>
+<tr><td><code>/sbin</code></td><td>系统管理员必需的命令（ip、parted）</td></tr>
+<tr><td><code>/usr/bin</code></td><td>普通用户常用程序（free、ps、sudo）</td></tr>
+<tr><td><code>/usr/sbin</code></td><td>系统管理程序（useradd、groupadd）</td></tr>
+<tr><td><code>/usr/local/bin</code></td><td>本地编译安装的程序</td></tr>
+<tr><td><code>/opt</code></td><td>第三方可选软件</td></tr>
+<tr><td><code>~/bin</code></td><td>用户自己的程序</td></tr>
+</table>
+<pre><code><span class="cmd">which</span> nano   <span class="comment"># 查找程序在哪里</span></code></pre>
+
+<h2>配置文件</h2>
+<h3>系统级：<code>/etc</code></h3>
+<ul>
+<li>无扩展名：<code>passwd</code>、<code>shadow</code>、<code>hostname</code>、<code>hosts</code></li>
+<li><code>.conf</code> 结尾：<code>resolv.conf</code>、<code>sysctl.conf</code></li>
+<li><code>.d</code> 目录：模块化配置（如 <code>logrotate.d</code>、<code>apt/sources.list.d</code>）</li>
+</ul>
+
+<h3>用户级：家目录隐藏文件</h3>
+<ul>
+<li><code>~/.bashrc</code>：非登录 shell 初始化</li>
+<li><code>~/.profile</code>：登录 shell 初始化</li>
+<li><code>~/.bash_history</code>：命令历史</li>
+</ul>
+
+<h2>内核文件：<code>/boot</code></h2>
+<table>
+<tr><th>文件</th><th>说明</th></tr>
+<tr><td><code>vmlinuz-版本号</code></td><td>压缩的可启动内核（vm=虚拟内存，z=压缩）</td></tr>
+<tr><td><code>initrd.img-版本号</code></td><td>启动时的临时根文件系统</td></tr>
+<tr><td><code>config-版本号</code></td><td>内核编译配置</td></tr>
+<tr><td><code>grub/</code></td><td>启动加载器配置</td></tr>
+</table>
+
+<h2>虚拟文件系统（不在硬盘上，内核动态生成）</h2>
+<table>
+<tr><th>目录</th><th>作用</th></tr>
+<tr><td><code>/proc</code></td><td>运行中的进程、内核参数、硬件信息</td></tr>
+<tr><td><code>/proc/cpuinfo</code></td><td>CPU 详细信息</td></tr>
+<tr><td><code>/proc/meminfo</code></td><td>内存信息</td></tr>
+<tr><td><code>/sys</code></td><td>更有条理地展示硬件设备信息（sysfs）</td></tr>
+<tr><td><code>/dev</code></td><td>设备文件</td></tr>
+</table>
+
+<h3>特殊设备文件</h3>
+<table>
+<tr><th>文件</th><th>作用</th><th>用途</th></tr>
+<tr><td><code>/dev/null</code></td><td>黑洞，丢弃所有写入的数据</td><td>丢弃不需要的输出</td></tr>
+<tr><td><code>/dev/zero</code></td><td>提供无限的空字符</td><td>创建空文件、清空设备、性能测试</td></tr>
+<tr><td><code>/dev/urandom</code></td><td>生成伪随机数</td><td>生成密码、密钥、随机数据</td></tr>
+</table>
+<pre><code><span class="comment"># 创建 100MB 空文件</span>
+<span class="cmd">dd</span> if=/dev/zero of=test.img bs=1M count=100
+
+<span class="comment"># 生成随机文件</span>
+<span class="cmd">dd</span> if=/dev/urandom of=random.bin bs=1M count=10</code></pre>
+
+<h2>内存</h2>
+<ul>
+<li><strong>物理内存（RAM）</strong>：速度快但断电丢失</li>
+<li><strong>Swap</strong>：硬盘上的交换空间，内存不够时临时使用</li>
+<li><strong>虚拟内存</strong>：应用程序看到的总可用内存（RAM + Swap）</li>
+</ul>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="4.2-computer-hardware.html"><div class="label">← 上一课</div><div class="name">4.2 计算机硬件</div></a>
+<a class="nav-btn" href="4.3-L2-processes-and-logs.html"><div class="label">下一课 →</div><div class="name">4.3b 进程与系统日志</div></a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

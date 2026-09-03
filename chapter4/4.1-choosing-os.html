@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选择操作系统 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12; --surface: #13161c; --surface-raised: #1a1e26;
+  --border: #262b36; --text: #c8cdd6; --text-muted: #6b7280;
+  --heading: #e8ecf2; --accent: #60a5fa; --accent-dim: #1e3a5f;
+  --code-bg: #161b22; --ch-color: #c084fc;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; -webkit-font-smoothing:antialiased; }
+.topbar { border-bottom:1px solid var(--border); padding:.8rem 2rem; position:sticky; top:0; background:var(--surface); z-index:100; display:flex; align-items:center; gap:1rem; }
+.topbar a { color:var(--text-muted); text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:color .15s; }
+.topbar a:hover { color:var(--accent); }
+.topbar .sep { color:var(--border); }
+.topbar .current { color:var(--heading); }
+.page-header { max-width:780px; margin:0 auto; padding:3rem 2rem 2rem; border-bottom:1px solid var(--border); position:relative; }
+.page-header::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--ch-color); border-radius:2px; }
+.page-header .ch-label { font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ch-color); margin-bottom:.4rem; padding-left:1.2rem; }
+.page-header h1 { font-size:1.8rem; font-weight:700; color:var(--heading); letter-spacing:-.02em; padding-left:1.2rem; }
+.page-header .commands { margin-top:.6rem; padding-left:1.2rem; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-muted); }
+.page-header .commands code { background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; color:var(--accent); margin-right:.3rem; }
+article { max-width:780px; margin:0 auto; padding:2rem 2rem 4rem; }
+article h2 { font-size:1.3rem; font-weight:600; color:var(--heading); margin-top:2.5rem; margin-bottom:.8rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+article h3 { font-size:1.05rem; font-weight:600; color:var(--heading); margin-top:1.8rem; margin-bottom:.6rem; }
+article p { margin-bottom:.8rem; }
+article ul, article ol { margin-bottom:.8rem; padding-left:1.5rem; }
+article li { margin-bottom:.3rem; }
+article table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+article th { text-align:left; padding:.5rem .8rem; background:var(--surface-raised); color:var(--heading); font-weight:600; border:1px solid var(--border); font-size:.82rem; }
+article td { padding:.5rem .8rem; border:1px solid var(--border); }
+article code { font-family:'IBM Plex Mono',monospace; background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; font-size:.88em; color:var(--accent); }
+article pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; overflow-x:auto; line-height:1.6; }
+article pre code { background:none; padding:0; color:var(--text); }
+.cmd { color:var(--ch-color); }
+.comment { color:var(--text-muted); }
+article blockquote { border-left:3px solid var(--ch-color); padding:.6rem 1rem; margin:1rem 0; background:var(--surface); border-radius:0 4px 4px 0; font-size:.9rem; }
+article strong { color:var(--heading); }
+.nav-bottom { max-width:780px; margin:0 auto; padding:0 2rem 3rem; display:flex; justify-content:space-between; gap:1rem; }
+.nav-btn { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.8rem 1.2rem; text-decoration:none; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:all .15s; }
+.nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nav-btn .label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; }
+.nav-btn .name { color:var(--heading); margin-top:.2rem; font-size:.85rem; }
+.footer { text-align:center; padding:2rem; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); }
+@media (max-width:640px) { .page-header h1 { font-size:1.4rem; } article { padding:1.5rem 1rem 3rem; } .nav-bottom { flex-direction:column; } }
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">4.1</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 4 · Linux 操作系统</div>
+  <h1>选择操作系统</h1>
+  <div class="commands">本课命令：<code>uname</code></div>
+</div>
+<article>
+
+<h2>什么是操作系统</h2>
+<p>操作系统（OS）是计算机的核心，让应用程序能够运行，并提供驱动程序来访问硬件。</p>
+
+<h2>Linux 内核 vs 发行版</h2>
+<ul>
+<li><strong>Linux 内核（Kernel）</strong>：所有发行版的核心，由 Linus Torvalds 领导维护</li>
+<li><strong>Linux 发行版</strong> = 内核 + 各种软件、工具、桌面环境</li>
+</ul>
+
+<h2>发行版的三大类型</h2>
+<table>
+<tr><th>类型</th><th>代表</th><th>特点</th></tr>
+<tr><td><strong>企业级</strong></td><td>RHEL、SUSE Enterprise、Debian、Ubuntu LTS</td><td>稳定、长期支持（RHEL 10年，Ubuntu LTS 5年），使用较旧但经过验证的内核</td></tr>
+<tr><td><strong>消费级</strong></td><td>Fedora、Ubuntu 非LTS、openSUSE</td><td>使用较新内核和驱动，支持最新硬件，支持期短（约9个月）</td></tr>
+<tr><td><strong>实验性/极客</strong></td><td>Arch Linux、Gentoo</td><td>滚动更新，软件最新，可能不稳定</td></tr>
+</table>
+
+<h2>Linux 的使用场景</h2>
+<ul>
+<li><strong>桌面</strong>：家庭/小公司免费且方便，常见桌面环境 GNOME、KDE</li>
+<li><strong>服务器</strong>：企业中非常普遍，虚拟化和容器化后更是主流</li>
+<li><strong>云</strong>：AWS、Google Cloud、Azure 等都提供多种 Linux 发行版</li>
+</ul>
+
+<h2>非 Linux 操作系统</h2>
+<table>
+<tr><th>系统</th><th>说明</th></tr>
+<tr><td><strong>UNIX</strong></td><td>Linux 的灵感来源。商业版有 AIX、HP-UX；免费版有 FreeBSD、OpenBSD</td></tr>
+<tr><td><strong>macOS</strong></td><td>基于 BSD Unix，<code>uname -s</code> 显示 Darwin，命令行与 Linux 很像</td></tr>
+<tr><td><strong>Windows</strong></td><td>桌面市场占主导，服务器端也有纯命令行版本</td></tr>
+</table>
+
+<h2>内核版本号解读</h2>
+<p>以 <code>6.17.0-1032-oem</code> 为例：</p>
+<table>
+<tr><th>部分</th><th>含义</th></tr>
+<tr><td><code>6</code></td><td>主版本号（重大架构变化时增加）</td></tr>
+<tr><td><code>17</code></td><td>次版本号（功能增加、较大改进）</td></tr>
+<tr><td><code>0</code></td><td>修订号（小修复）</td></tr>
+<tr><td><code>1032</code></td><td>发行版自己的构建编号（补丁、定制）</td></tr>
+<tr><td><code>oem</code></td><td>OEM 定制标识，针对特定硬件优化的内核</td></tr>
+</table>
+<pre><code><span class="cmd">uname</span> -r     <span class="comment"># 查看内核版本</span></code></pre>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="../chapter3/3.3-L2-scripting-advanced.html"><div class="label">← 上一课</div><div class="name">3.3b 脚本进阶</div></a>
+<a class="nav-btn" href="4.2-computer-hardware.html"><div class="label">下一课 →</div><div class="name">4.2 计算机硬件</div></a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>
