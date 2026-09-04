@@ -4,7 +4,7 @@
 
 ## 🌐 在线浏览
 
-**[→ 查看所有笔记](https://zsc13810288137.github.io/linux-essentials-notes/)**
+**[→ 查看所有笔记](https://zsc13810288137.github.io/Linux-Essentials-)**
 
 按章节筛选、按关键词搜索。
 
