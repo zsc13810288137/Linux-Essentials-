@@ -455,35 +455,35 @@ const lessons = [
   },
   {
     id: "5.1",
-    title: "安全基础与用户类型",
+    title: "基础安全与用户类型",
     chapter: 5,
-    status: "todo",
-    topics: ["root", "sudo", "用户管理"],
-    path: "#"
+    status: "done",
+    topics: ["root", "sudo", "su", "UID", "GID", "/etc/passwd", "/etc/shadow", "/etc/sudoers", "id", "last", "who", "w"],
+    path: "chapter5/5.1-security-and-users.html"
   },
   {
     id: "5.2",
     title: "创建用户与组",
     chapter: 5,
-    status: "todo",
-    topics: ["useradd", "groupadd", "/etc/passwd", "/etc/shadow"],
-    path: "#"
+    status: "done",
+    topics: ["useradd", "userdel", "groupadd", "groupdel", "passwd", "/etc/skel", "SUID", "锁定账户"],
+    path: "chapter5/5.2-creating-users-groups.html"
   },
   {
     id: "5.3",
     title: "文件权限与所有权",
     chapter: 5,
-    status: "todo",
-    topics: ["chmod", "chown", "rwx", "特殊权限"],
-    path: "#"
+    status: "done",
+    topics: ["chmod", "chown", "chgrp", "rwx", "八进制", "SUID", "SGID", "Sticky Bit", "特殊权限"],
+    path: "chapter5/5.3-file-permissions.html"
   },
   {
     id: "5.4",
-    title: "特殊目录与文件",
+    title: "特殊目录与文件链接",
     chapter: 5,
-    status: "todo",
-    topics: ["符号链接", "硬链接", "/proc", "/sys", "临时文件"],
-    path: "#"
+    status: "done",
+    topics: ["硬链接", "软链接", "ln", "inode", "/tmp", "/var/tmp", "/run", "绝对路径"],
+    path: "chapter5/5.4-special-dirs-and-links.html"
   },
 ];
 

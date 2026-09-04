@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文件权限与所有权 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12; --surface: #13161c; --surface-raised: #1a1e26;
+  --border: #262b36; --text: #c8cdd6; --text-muted: #6b7280;
+  --heading: #e8ecf2; --accent: #60a5fa; --accent-dim: #1e3a5f;
+  --code-bg: #161b22; --ch-color: #f87171;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; -webkit-font-smoothing:antialiased; }
+.topbar { border-bottom:1px solid var(--border); padding:.8rem 2rem; position:sticky; top:0; background:var(--surface); z-index:100; display:flex; align-items:center; gap:1rem; }
+.topbar a { color:var(--text-muted); text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:color .15s; }
+.topbar a:hover { color:var(--accent); }
+.topbar .sep { color:var(--border); }
+.topbar .current { color:var(--heading); }
+.page-header { max-width:780px; margin:0 auto; padding:3rem 2rem 2rem; border-bottom:1px solid var(--border); position:relative; }
+.page-header::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--ch-color); border-radius:2px; }
+.page-header .ch-label { font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ch-color); margin-bottom:.4rem; padding-left:1.2rem; }
+.page-header h1 { font-size:1.8rem; font-weight:700; color:var(--heading); letter-spacing:-.02em; padding-left:1.2rem; }
+.page-header .commands { margin-top:.6rem; padding-left:1.2rem; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-muted); }
+.page-header .commands code { background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; color:var(--accent); margin-right:.3rem; }
+article { max-width:780px; margin:0 auto; padding:2rem 2rem 4rem; }
+article h2 { font-size:1.3rem; font-weight:600; color:var(--heading); margin-top:2.5rem; margin-bottom:.8rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+article h3 { font-size:1.05rem; font-weight:600; color:var(--heading); margin-top:1.8rem; margin-bottom:.6rem; }
+article p { margin-bottom:.8rem; }
+article ul, article ol { margin-bottom:.8rem; padding-left:1.5rem; }
+article li { margin-bottom:.3rem; }
+article table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+article th { text-align:left; padding:.5rem .8rem; background:var(--surface-raised); color:var(--heading); font-weight:600; border:1px solid var(--border); font-size:.82rem; }
+article td { padding:.5rem .8rem; border:1px solid var(--border); }
+article code { font-family:'IBM Plex Mono',monospace; background:var(--code-bg); padding:.1rem .4rem; border-radius:3px; font-size:.88em; color:var(--accent); }
+article pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; overflow-x:auto; line-height:1.6; }
+article pre code { background:none; padding:0; color:var(--text); }
+.cmd { color:var(--ch-color); }
+.comment { color:var(--text-muted); }
+article blockquote { border-left:3px solid var(--ch-color); padding:.6rem 1rem; margin:1rem 0; background:var(--surface); border-radius:0 4px 4px 0; font-size:.9rem; }
+article strong { color:var(--heading); }
+.nav-bottom { max-width:780px; margin:0 auto; padding:0 2rem 3rem; display:flex; justify-content:space-between; gap:1rem; }
+.nav-btn { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.8rem 1.2rem; text-decoration:none; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:.8rem; transition:all .15s; }
+.nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nav-btn .label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; }
+.nav-btn .name { color:var(--heading); margin-top:.2rem; font-size:.85rem; }
+.footer { text-align:center; padding:2rem; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-muted); border-top:1px solid var(--border); }
+@media (max-width:640px) { .page-header h1 { font-size:1.4rem; } article { padding:1.5rem 1rem 3rem; } .nav-bottom { flex-direction:column; } }
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="../index.html">← 目录</a>
+  <span class="sep">/</span>
+  <span class="current">5.3</span>
+</nav>
+<div class="page-header">
+  <div class="ch-label">Chapter 5 · 安全与文件权限</div>
+  <h1>文件权限与所有权</h1>
+  <div class="commands">本课命令：<code>chmod</code> <code>chown</code> <code>chgrp</code> <code>ls</code> <code>groups</code></div>
+</div>
+<article>
+
+<h2>查看权限 ls -l</h2>
+<pre><code>-rw-rw-r-- 1 carol carol 1881 text.txt
+ ├──┤├──┤├──┤
+  u   g   o</code></pre>
+<p>类型：<code>-</code> 普通、<code>d</code> 目录、<code>l</code> 软链接、<code>b</code> 块设备、<code>c</code> 字符设备</p>
+
+<h2>权限含义</h2>
+<table>
+<tr><th>权限</th><th>文件</th><th>目录</th><th>八进制</th></tr>
+<tr><td><code>r</code></td><td>读内容</td><td>列出文件名</td><td>4</td></tr>
+<tr><td><code>w</code></td><td>修改/删除</td><td>创建/删除/重命名</td><td>2</td></tr>
+<tr><td><code>x</code></td><td>执行</td><td>进入目录</td><td>1</td></tr>
+</table>
+<blockquote>权限按 u→g→o 匹配，<strong>只应用第一个匹配到的</strong>。</blockquote>
+
+<h2>修改权限 chmod</h2>
+<h3>符号模式</h3>
+<pre><code><span class="cmd">chmod</span> u+x file
+<span class="cmd">chmod</span> go-wx file
+<span class="cmd">chmod</span> u+rwx,g-x file</code></pre>
+<h3>数字模式</h3>
+<pre><code><span class="cmd">chmod</span> 754 file   <span class="comment"># rwxr-xr-- (7=4+2+1, 5=4+1, 4=4)</span></code></pre>
+<p><strong>口诀：421 对应 rwx，加法凑数。奇数必可执行。</strong></p>
+
+<h2>修改所有权</h2>
+<pre><code><span class="cmd">chown</span> carol:students file
+<span class="cmd">chown</span> :students file
+<span class="cmd">chgrp</span> students file</code></pre>
+
+<h2>三个特殊权限</h2>
+<table>
+<tr><th>权限</th><th>八进制</th><th>符号</th><th>作用</th></tr>
+<tr><td><strong>Sticky Bit</strong></td><td>1</td><td><code>t</code></td><td>目录中只有拥有者能删自己的文件（/tmp）</td></tr>
+<tr><td><strong>SGID</strong></td><td>2</td><td><code>s</code>(g)</td><td>新文件继承组 / 以组权限运行</td></tr>
+<tr><td><strong>SUID</strong></td><td>4</td><td><code>s</code>(u)</td><td>以所有者权限运行</td></tr>
+</table>
+<pre><code><span class="cmd">chmod</span> 1755 dir    <span class="comment"># sticky</span>
+<span class="cmd">chmod</span> 2755 dir    <span class="comment"># SGID</span>
+<span class="cmd">chmod</span> 4755 file   <span class="comment"># SUID</span></code></pre>
+<p>大写 <code>S</code>/<code>T</code> = 特殊权限设了但 x 缺失</p>
+
+<h3>共享目录经典设置</h3>
+<pre><code><span class="cmd">mkdir</span> Box && <span class="cmd">chown</span> :users Box/ && <span class="cmd">chmod</span> g+wxs,o+t Box/
+<span class="comment"># SGID + sticky：新文件属于 users 组，只有创建者能删</span></code></pre>
+
+<h2>记忆法</h2>
+<ul>
+<li><strong>r</strong>=透窗看 <strong>w</strong>=进去改装修 <strong>x</strong>=有钥匙进门</li>
+<li><strong>Sticky</strong>=公共储物柜只拿自己的 <strong>SUID/SGID</strong>=借工牌刷门禁</li>
+</ul>
+
+</article>
+<div class="nav-bottom">
+<a class="nav-btn" href="5.2-creating-users-groups.html"><div class="label">← 上一课</div><div class="name">5.2 创建用户与组</div></a>
+<a class="nav-btn" href="5.4-special-dirs-and-links.html"><div class="label">下一课 →</div><div class="name">5.4 特殊目录与链接</div></a>
+</div><div class="name">3.3b 脚本进阶</div></a>
+<a class="nav-btn" href="4.2-computer-hardware.html"><div class="label">下一课 →</div><div class="name">4.2 计算机硬件</div></a>
+</div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body>
+</html>

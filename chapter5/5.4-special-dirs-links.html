@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特殊目录与文件链接 — Linux Essentials</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#0c0e12; --surface:#13161c; --surface-raised:#1a1e26; --border:#262b36; --text:#c8cdd6; --text-muted:#6b7280; --heading:#e8ecf2; --accent:#60a5fa; --code-bg:#161b22; --ch-color:#f87171; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+.topbar{border-bottom:1px solid var(--border);padding:.8rem 2rem;position:sticky;top:0;background:var(--surface);z-index:100;display:flex;align-items:center;gap:1rem}
+.topbar a{color:var(--text-muted);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:.8rem;transition:color .15s}
+.topbar a:hover{color:var(--accent)}.topbar .sep{color:var(--border)}.topbar .current{color:var(--heading)}
+.page-header{max-width:780px;margin:0 auto;padding:3rem 2rem 2rem;border-bottom:1px solid var(--border);position:relative}
+.page-header::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--ch-color);border-radius:2px}
+.page-header .ch-label{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ch-color);margin-bottom:.4rem;padding-left:1.2rem}
+.page-header h1{font-size:1.8rem;font-weight:700;color:var(--heading);letter-spacing:-.02em;padding-left:1.2rem}
+.page-header .commands{margin-top:.6rem;padding-left:1.2rem;font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--text-muted)}
+.page-header .commands code{background:var(--code-bg);padding:.1rem .4rem;border-radius:3px;color:var(--accent);margin-right:.3rem}
+article{max-width:780px;margin:0 auto;padding:2rem 2rem 4rem}
+article h2{font-size:1.3rem;font-weight:600;color:var(--heading);margin-top:2.5rem;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+article h3{font-size:1.05rem;font-weight:600;color:var(--heading);margin-top:1.8rem;margin-bottom:.6rem}
+article p{margin-bottom:.8rem} article ul,article ol{margin-bottom:.8rem;padding-left:1.5rem} article li{margin-bottom:.3rem}
+article table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+article th{text-align:left;padding:.5rem .8rem;background:var(--surface-raised);color:var(--heading);font-weight:600;border:1px solid var(--border);font-size:.82rem}
+article td{padding:.5rem .8rem;border:1px solid var(--border)}
+article code{font-family:'IBM Plex Mono',monospace;background:var(--code-bg);padding:.1rem .4rem;border-radius:3px;font-size:.88em;color:var(--accent)}
+article pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;margin:1rem 0;overflow-x:auto;line-height:1.6}
+article pre code{background:none;padding:0;color:var(--text)}
+.cmd{color:var(--ch-color)}.comment{color:var(--text-muted)}
+article blockquote{border-left:3px solid var(--ch-color);padding:.6rem 1rem;margin:1rem 0;background:var(--surface);border-radius:0 4px 4px 0;font-size:.9rem}
+article strong{color:var(--heading)}
+.nav-bottom{max-width:780px;margin:0 auto;padding:0 2rem 3rem;display:flex;justify-content:space-between;gap:1rem}
+.nav-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.8rem 1.2rem;text-decoration:none;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:.8rem;transition:all .15s}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn .label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em}
+.nav-btn .name{color:var(--heading);margin-top:.2rem;font-size:.85rem}
+.footer{text-align:center;padding:2rem;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text-muted);border-top:1px solid var(--border)}
+@media(max-width:640px){.page-header h1{font-size:1.4rem}article{padding:1.5rem 1rem 3rem}.nav-bottom{flex-direction:column}}
+</style>
+</head>
+<body>
+<nav class="topbar"><a href="../index.html">← 目录</a><span class="sep">/</span><span class="current">5.4</span></nav>
+<div class="page-header"><div class="ch-label">Chapter 5 · 安全与文件权限</div><h1>特殊目录与文件链接</h1><div class="commands">本课命令：<code>ln</code> <code>ls</code></div></div>
+<article>
+<h2>临时文件目录</h2>
+<table>
+<tr><th>目录</th><th>重启后保留？</th><th>用途</th></tr>
+<tr><td><code>/tmp</code></td><td>❌ 通常清空</td><td>程序一次性临时文件</td></tr>
+<tr><td><code>/var/tmp</code></td><td>✅ 保留</td><td>需要跨重启保留的临时文件</td></tr>
+<tr><td><code>/run</code></td><td>❌ 必须清空</td><td>运行时数据（如 .pid 文件）</td></tr>
+</table>
+<p>这些目录都是全局可写，靠 <strong>sticky bit</strong> 防止用户删除别人的文件。</p>
+
+<h2>链接</h2>
+
+<h3>硬链接 vs 软链接</h3>
+<table>
+<tr><th></th><th>硬链接</th><th>软链接（符号链接）</th></tr>
+<tr><td><strong>创建</strong></td><td><code>ln target link</code></td><td><code>ln -s target link</code></td></tr>
+<tr><td><strong>本质</strong></td><td>同一个 inode 的另一个名字</td><td>指向路径的"快捷方式"</td></tr>
+<tr><td><strong>删除原文件</strong></td><td>链接仍可用（数据还在）</td><td>链接失效</td></tr>
+<tr><td><strong>跨文件系统</strong></td><td>❌ 不行</td><td>✅ 可以</td></tr>
+<tr><td><strong>能链接目录</strong></td><td>❌ 不行</td><td>✅ 可以</td></tr>
+<tr><td><strong><code>ls -l</code></strong></td><td>普通文件，链接计数+1</td><td><code>l</code> 类型，显示 <code>→ 目标</code></td></tr>
+<tr><td><strong><code>ls -i</code></strong></td><td>与原文件相同 inode</td><td>不同 inode</td></tr>
+</table>
+
+<h3>创建示例</h3>
+<pre><code><span class="comment"># 硬链接</span>
+<span class="cmd">ln</span> original.txt hardlink
+
+<span class="comment"># 软链接（务必用绝对路径！）</span>
+<span class="cmd">ln</span> -s /home/carol/Documents/original.txt softlink
+
+<span class="comment"># ❌ 相对路径，移动链接后会断</span>
+<span class="cmd">ln</span> -s original.txt softlink</code></pre>
+
+<blockquote>
+<strong>关键</strong>：创建软链接<strong>务必用绝对路径</strong>，否则移动链接后会断。软链接自身权限永远显示 <code>rwxrwxrwx</code>，但<strong>实际权限跟随目标文件</strong>。
+</blockquote>
+
+<h3>陷阱示例</h3>
+<pre><code>Documents/
+├── clients.txt          <span class="comment"># 内容: John, Michael, Bob</span>
+└── somedir/
+    ├── clients.txt      <span class="comment"># 内容: Bill, Luke, Karl</span>
+    └── partners.txt → clients.txt  <span class="comment"># 相对路径！</span></code></pre>
+<p>把 <code>partners.txt</code> 移到 <code>Documents/</code> 后，它指向的是 <code>Documents/clients.txt</code>（John, Michael, Bob），<strong>不是</strong>原来 somedir 里的那个！</p>
+
+<h2>比喻记忆</h2>
+<ul>
+<li><strong>硬链接</strong> = 一个人有两个名字（中文名和英文名），叫哪个都找到同一个人。删掉一个名字，人还在。</li>
+<li><strong>软链接</strong> = 门上贴的纸条"去302房间找我"。如果302没了，纸条就没用了。但纸条可以贴在任何楼（跨文件系统）。</li>
+</ul>
+</article>
+<div class="nav-bottom"><a class="nav-btn" href="5.3-file-permissions.html"><div class="label">← 上一课</div><div class="name">5.3 文件权限</div></a><div></div></div>
+<footer class="footer">Senchuan · Linux Essentials Notes · 2026</footer>
+</body></html>

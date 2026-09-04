@@ -32,7 +32,7 @@
 - [x] Chapter 2: 在 Linux 系统中导航
 - [x] Chapter 3: 命令行的力量
 - [x] Chapter 4: Linux 操作系统
-- [ ] Chapter 5: 安全与文件权限
+- [x] Chapter 5: 安全与文件权限
 
 ## 📬 联系
 
